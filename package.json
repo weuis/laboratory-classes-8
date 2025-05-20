@@ -1,0 +1,24 @@
+{
+  "name": "laboratory-classes-8",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "electron": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "laboratory-classes-8": "file:",
+    "mongodb": "^6.16.0"
+  },
+  "devDependencies": {
+    "electron": "^36.1.0",
+    "nodemon": "^3.1.9"
+  }
+}
+
