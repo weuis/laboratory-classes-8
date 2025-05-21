@@ -1,4 +1,3 @@
-const Product = require("./Product");
 const { getDatabase } = require("../database");
 
 const COLLECTION_NAME = "carts";
@@ -25,19 +24,17 @@ class Cart {
     }
   }
 
-  static async add(productName) {
+  static async add(product) {
     const db = getDatabase();
 
     try {
-      const product = await Product.findByName(productName);
-
-      if (!product) {
-        throw Error(`Product '${productName}' not found`);
+      if (!product || !product.name) {
+        throw Error('Invalid product');
       }
 
       const cart = await this.getCart();
       const searchedProduct = cart.items.find(
-        (item) => item.product.name === productName
+          (item) => item.product.name === product.name
       );
 
       if (searchedProduct) {
@@ -47,10 +44,29 @@ class Cart {
       }
 
       await db
-        .collection(COLLECTION_NAME)
-        .updateOne({}, { $set: { items: cart.items } });
+          .collection(COLLECTION_NAME)
+          .updateOne({}, { $set: { items: cart.items } });
     } catch (error) {
       console.error("Error occurred while adding product to cart");
+    }
+  }
+
+  static async deleteProductByName(productName) {
+    const db = getDatabase();
+
+    try {
+      const cart = await this.getCart();
+
+      const updatedItems = cart.items.filter(
+          (item) => item.product.name !== productName
+      );
+
+      await db
+          .collection(COLLECTION_NAME)
+          .updateOne({}, { $set: { items: updatedItems } });
+
+    } catch (error) {
+      console.error("Error occurred while deleting product from cart");
     }
   }
 
@@ -70,8 +86,8 @@ class Cart {
     try {
       const cart = await this.getCart();
       const productsQuantity = cart.items.reduce(
-        (total, item) => total + item.quantity,
-        0
+          (total, item) => total + item.quantity,
+          0
       );
 
       return productsQuantity;
@@ -88,14 +104,14 @@ class Cart {
     try {
       const cart = await this.getCart();
       const totalPrice = cart.items.reduce(
-        (total, item) => total + item.product.price * item.quantity,
-        0
+          (total, item) => total + item.product.price * item.quantity,
+          0
       );
 
       return totalPrice;
     } catch (error) {
       console.error(
-        "Error occurred while calcualting total price of items in cart"
+          "Error occurred while calcualting total price of items in cart"
       );
 
       return 0;
@@ -107,8 +123,8 @@ class Cart {
 
     try {
       await db
-        .collection(COLLECTION_NAME)
-        .updateOne({}, { $set: { items: [] } });
+          .collection(COLLECTION_NAME)
+          .updateOne({}, { $set: { items: [] } });
     } catch (error) {
       console.error("Error occurred while clearing cart");
     }
